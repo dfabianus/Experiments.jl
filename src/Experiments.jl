@@ -1,25 +1,24 @@
 module Experiments
-export Experiment
+export Experiment, TimeVariable
 using TimeSeries
 using Dates
 using DataFrames
 
-struct TimeVariable{T,N,D,A} <: AbstractTimeSeries{T,N,D}
-    timeArray::TimeArray{T,N,D,A}
-end
+#struct TimeVariable{T,N,D,A} <: AbstractTimeSeries{T,N,D}
+#    timeArray::TimeArray{T,N,D,A}
+#end
 
 mutable struct Experiment
     id::String
-    #meta::Dict{String,Any}
-    timeseries::Vector{TimeVariable}
+    timeseries::Vector{TimeArray}
 
-    function Experiment(id::String, timeseries::Vector{TimeVariable})
+    function Experiment(id::String, timeseries::Vector{TimeArray})
         new(id, timeseries)
     end
 end
 
 function Experiment(id::String, df::DataFrame)
-    timeseries = Vector{TimeVariable}()
+    timeseries = Vector{TimeArray}()
     for col in names(df)
         if col != "datetime"
             push!(timeseries, TimeSeries.TimeArray(df.datetime, df[!,col]))
@@ -40,22 +39,27 @@ julia> get_start_datetime(experiment)
 2019-01-01T00:00:00
 ```
 """
-function get_start_datetime(experiment::Experiment)
-    first_timepoints = [timestamp(ts)[1] for ts in experiment.timeseries]
+
+function starttime(timeseries::TimeArray)
+    return minimum(timestamp(timeseries))
+end
+function starttime(experiment::Experiment)
+    first_timepoints = [starttime(ts) for ts in experiment.timeseries]
     return minimum(first_timepoints)
 end
-
-function get_end_datetime(experiment::Experiment)
-    last_timepoints = [timestamp(ts)[end] for ts in experiment.timeseries]
+function endtime(timeseries::TimeArray)
+    return maximum(timestamp(timeseries))
+end
+function endtime(experiment::Experiment)
+    last_timepoints = [endtime(ts) for ts in experiment.timeseries]
     return maximum(last_timepoints)
 end
 
-function get_experiment_duration(experiment::Experiment)
-    return get_end_datetime(experiment) - get_start_datetime(experiment)
+function duration(timeseries::TimeArray)
+    return Dates.canonicalize(endtime(timeseries) - starttime(timeseries))
 end
-
-function get_signal_absolute_hours(experiment::Experiment, signal::String)
-    return get_end_datetime(experiment) - get_start_datetime(experiment)
+function duration(experiment::Experiment)
+    return Dates.canonicalize(endtime(experiment) - starttime(experiment))
 end
 
 # 

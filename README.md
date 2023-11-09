@@ -6,3 +6,8 @@
 [![Build Status](https://travis-ci.com/dfabianus/Experiments.jl.svg?branch=master)](https://travis-ci.com/dfabianus/Experiments.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/dfabianus/Experiments.jl?svg=true)](https://ci.appveyor.com/project/dfabianus/Experiments-jl)
 [![Coverage](https://codecov.io/gh/dfabianus/Experiments.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/dfabianus/Experiments.jl)
+
+- [x] Die Grundstruktur abschließen: TimeSeries + Experiment struct
+- [ ] Möglichkeiten die Experimente als Collection zu vereinen
+- [ ] Parameter werden auch als TimeSeries mit zwei (oder einem?) Einträgen gespeichert, später einfacher damit zu rechnen, da sowieso interpoliert wird. Dazu kann die berechnete Start und End-Zeit genommen werden.
+- [ ] 

@@ -12,24 +12,28 @@ t = df_offline.time
 DCW = df_offline.DCW
 scatter(t,DCW)
 
-Experiments.TimeVariable("DCW", TimeSeries.TimeArray(df_offline.datetime, df_offline.DCW))
+#TV_DCW = Experiments.TimeVariable(TimeSeries.TimeArray(df_offline.datetime, df_offline.DCW))
+#scatter(TV_DCW)
+#plot(TimeSeries.TimeArray(df_offline.datetime, df_offline.DCW))
 
-## create start time 
-start_time = DateTime(2019,1,1,0,0,0)
+# #create start time 
+start_time = DateTime(2018,1,1,0,0,0)
 df_offline.datetime = start_time .+ Dates.Second(1.0) .* Int64.(round.(3600 .* df_offline.time, digits=0))
 df_online.datetime = start_time .+ Dates.Second(1.0) .* Int64.(round.(3600 .* df_online.time, digits=0))
 
 # Create a new experiment
 test_from_dataframe = Experiments.Experiment("test_from_dataframe", df_offline)
-duration_test = timestamp(test_from_dataframe.timeseries["time"][5])-timestamp(test_from_dataframe.timeseries["time"][1])
-Dates.canonicalize(Dates.CompoundPeriod(duration_test))
+plot(test_from_dataframe.timeseries[1])
+scatter(test_from_dataframe.timeseries[7])
 
-Experiments.Experiment("test", Dict("a" => 1, "b" => "c"), [1.1,2.4,3.1])
-Experiments.f()
+# Dates and durations for the whole experiment
+Experiments.starttime(test_from_dataframe)
+Experiments.endtime(test_from_dataframe)
+Experiments.duration(test_from_dataframe)
 
-dates = [DateTime(2018,1,1,10,0,0), DateTime(2018,1,1,11,0,0), DateTime(2018,1,1,12,0,0)]
-YES = [1.1,2.4,3.1]
-timseries = TimeSeries.TimeArray(dates, YES)
-
-plot(timseries)
+# Dates and durations for a single timeseries
+Experiments.starttime(test_from_dataframe.timeseries[1])
+Experiments.endtime(test_from_dataframe.timeseries[1])
+Experiments.duration(test_from_dataframe.timeseries[1])
+#In this case both are equal because timeseries are all the same length
 
