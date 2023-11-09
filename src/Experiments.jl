@@ -66,5 +66,14 @@ function duration(experiment::Experiment)
     return Dates.canonicalize(endtime(experiment) - starttime(experiment))
 end
 
-# 
+function DataFrame(experiment::Experiment)
+    dfs = Vector{DataFrame}()
+    for ts in experiment.timeseries
+        push!(dfs, DataFrame(ts))
+    end
+    df_total = outerjoin(dfs..., on=:timestamp, makeunique=true)
+    sort!(df_total, :timestamp) # must be done after join
+    return df_total
+end
+
 end

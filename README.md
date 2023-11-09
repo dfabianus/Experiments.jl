@@ -8,7 +8,8 @@
 [![Coverage](https://codecov.io/gh/dfabianus/Experiments.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/dfabianus/Experiments.jl)
 
 - [x] Die Grundstruktur abschließen: TimeSeries + Experiment struct
-- [ ] include testing module
+- [x] include testing module
+- [x] implemented DataFrame integration
 - [ ] Möglichkeiten die Experimente als Collection zu vereinen
 - [ ] Parameter werden auch als TimeSeries mit zwei (oder einem?) Einträgen gespeichert, später einfacher damit zu rechnen, da sowieso interpoliert wird. Dazu kann die berechnete Start und End-Zeit genommen werden.
 - [ ] 
