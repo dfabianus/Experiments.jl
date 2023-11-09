@@ -22,7 +22,7 @@ df_offline.datetime = start_time .+ Dates.Second(1.0) .* Int64.(round.(3600 .* d
 df_online.datetime = start_time .+ Dates.Second(1.0) .* Int64.(round.(3600 .* df_online.time, digits=0))
 
 # Create a new experiment
-test_from_dataframe = Experiments.Experiment("test_from_dataframe", df_offline)
+test_from_dataframe = Experiments.Experiment(df_offline; name="test")
 plot(test_from_dataframe.timeseries[1])
 scatter(test_from_dataframe.timeseries[7])
 

@@ -17,15 +17,17 @@ mutable struct Experiment
     end
 end
 
-function Experiment(id::String, df::DataFrame)
+function Experiment(df::DataFrame; name::String)
     timeseries = Vector{TimeArray}()
     for col in names(df)
         if col != "datetime"
             push!(timeseries, TimeSeries.TimeArray(df.datetime, df[!,col]))
         end
     end
-    return Experiment(id, timeseries)
+    return Experiment(name, timeseries)
 end
+
+Base.show(io::IO, z::Experiment) = print(io, z.id, " experiment with ", length(z.timeseries), " timeseries")
 
 # Dependent properties
 """
