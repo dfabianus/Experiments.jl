@@ -12,7 +12,7 @@ function Experiment(dfs::DataFrame...; name::String, timecol = :datetime)
     for df in dfs
         for col in names(df)
             if Symbol(col) != Symbol(timecol)
-                push!(timeseries, TimeSeries.TimeArray(df[!,timecol], df[!,col]))
+                push!(timeseries, TimeSeries.TimeArray(df[!,timecol], df[!,col], [Symbol(col)]))
             end
         end
     end

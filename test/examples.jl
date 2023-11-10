@@ -37,3 +37,10 @@ df == df2 # Doesnt work because of missing data
 exp2_multiple_dataframes = Experiments.Experiment(df2; name = "test_experiment_from_csv", timecol = :timestamp)
 df3 = DataFrame(exp2_multiple_dataframes) # true
 df3 == df2 # This should in principle be also true
+
+# Nice Timeseries
+ts = exp_multiple_dataframes.timeseries[14]
+
+# addressing values based on conditions
+exp_multiple_dataframes.timeseries[14][exp_multiple_dataframes.timeseries[14].>0.0]
+[exp_multiple_dataframes.timeseries[14].>0.0]
