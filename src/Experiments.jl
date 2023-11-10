@@ -5,6 +5,7 @@ export Experiment, TimeVariable
 using TimeSeries
 using Dates
 using DataFrames
+using CSV
 
 include("types.jl")
 include("datetime_handling.jl")
@@ -19,6 +20,11 @@ function DataFrame(experiment::Experiment)
     df_total = outerjoin(dfs..., on=:timestamp, makeunique=true)
     sort!(df_total, :timestamp) # must be done after join
     return df_total
+end
+
+function save(experiment::Experiment, filename::String)
+    df = DataFrame(experiment)
+    CSV.write(filename, df)
 end
 
 end

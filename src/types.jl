@@ -7,12 +7,12 @@ mutable struct Experiment
     end
 end
 
-function Experiment(dfs::DataFrame...; name::String)
+function Experiment(dfs::DataFrame...; name::String, timecol = :datetime)
     timeseries = Vector{TimeArray}()
     for df in dfs
         for col in names(df)
-            if col != "datetime"
-                push!(timeseries, TimeSeries.TimeArray(df.datetime, df[!,col]))
+            if Symbol(col) != Symbol(timecol)
+                push!(timeseries, TimeSeries.TimeArray(df[!,timecol], df[!,col]))
             end
         end
     end

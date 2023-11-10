@@ -5,7 +5,10 @@ using TimeSeries
 using Plots
 using Dates
 
+# Load test data
 include("load_test_data.jl")
+
+# Create experiments
 exp_offline_dataframe, exp_online_dataframe, exp_multiple_dataframes = create_experiments(repl=true)
 
 # Dates and durations for a single timeseries
@@ -17,29 +20,20 @@ Experiments.starttime(exp_multiple_dataframes.timeseries[38])
 Experiments.endtime(exp_multiple_dataframes.timeseries[38])
 Experiments.duration(exp_multiple_dataframes.timeseries[38])
 
-## Trying to implement the dataframes integration
-exp_multiple_dataframes
-ts1 = exp_multiple_dataframes.timeseries[3] # 20x1 DCW 
-ts2 = exp_multiple_dataframes.timeseries[30] # 24600x1 Volume
-ts3 = exp_multiple_dataframes.timeseries[24] # 24600x1 A
-# now merge these two timeseries into a dataframe
-df1 = DataFrame(ts1)
-df2 = DataFrame(ts2)
-df3 = DataFrame(ts3)
-
-# not feasible because it just considers equal timestamps
-innerjoin(df1, df2, on=:timestamp, makeunique=true) 
-
-leftjoin(df1, df2, on=:timestamp, makeunique=true) # 24600x2
-rightjoin(df1, df2, on=:timestamp, makeunique=true)# 20x2
-
-df4 = outerjoin(df1, df2, df3, on=:timestamp, makeunique=true) # 24600x2
-sort!(df4, :timestamp) # must be done after join
-scatter(df4.timestamp, df4.A)
-plot(df4.timestamp, df4.A_2)
-
+# Plotting
 df = DataFrame(exp_multiple_dataframes)
-plot(df[!, :timestamp], df[!, :A_2])
-scatter(df.timestamp, df.A_10)
+# Unfortunately, with missing values, the plot is not correct, scatter works
+plot(df[!, :timestamp], df[!, :A_1])
+scatter(df.timestamp, df.A_1)
+# compare to timeseries plotting, its working
+plot(exp_multiple_dataframes.timeseries[2])
+scatter(exp_multiple_dataframes.timeseries[2])
 
-Experiments.starttime()
+# Writing and reading experiments
+df
+Experiments.save(exp_multiple_dataframes, "data/test_export.csv")
+df == df2 # Doesnt work because of missing data 
+## maybe implement: exp2_multiple_dataframes = Experiments.load("data/test_export.csv")
+exp2_multiple_dataframes = Experiments.Experiment(df2; name = "test_experiment_from_csv", timecol = :timestamp)
+df3 = DataFrame(exp2_multiple_dataframes) # true
+df3 == df2 # This should in principle be also true

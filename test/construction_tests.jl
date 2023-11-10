@@ -6,6 +6,7 @@ using TimeSeries
 using Dates
 
 include("load_test_data.jl")
+
 exp_offline_dataframe, exp_online_dataframe, exp_multiple_dataframes = create_experiments()
 
 # For construction of tests from two dataframes. Are the timeseries correctly created?
@@ -18,4 +19,5 @@ df = DataFrame(exp_multiple_dataframes)
 
 # TEST DRIVEN DEVELOPMENT - Broken Tests
 @test_broken (length(exp_offline_dataframe.timeseries) == 1) 
-# just an example for a broken test, not important
+@test (length(exp_offline_dataframe.timeseries) == 1) skip=true
+# just an example for a broken test, not importants
