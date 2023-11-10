@@ -39,8 +39,28 @@ df3 = DataFrame(exp2_multiple_dataframes) # true
 df3 == df2 # This should in principle be also true
 
 # Nice Timeseries
-ts = exp_multiple_dataframes.timeseries[14]
+ts = exp_multiple_dataframes.timeseries[11]
+colnames(ts)
+meta(ts)
 
 # addressing values based on conditions
 exp_multiple_dataframes.timeseries[14][exp_multiple_dataframes.timeseries[14].>0.0]
 [exp_multiple_dataframes.timeseries[14].>0.0]
+
+scatter(ts)
+scatter(diff(ts))
+
+timestamp(ts)
+
+# maybe a function for adding differentials to a timeseries?
+merge(ts, diff(ts), method = :outer, colnames = [colnames(ts)[1], :diff])
+
+using Measurements
+# This works also for TimeSeries
+ts2 = TimeArray(timestamp(ts), values(ts) .± 0.1, colnames(ts))
+merge(ts2, diff(ts2), method = :outer, colnames = [colnames(ts2)[1], :diff])
+
+datetimes = [DateTime(1,1,1,1,1,1), DateTime(1,1,1,1,1,2), DateTime(1,1,1,1,1,3)]
+data = [1.0, 2.0, 3.0].±0.1
+test_constr = Experiments.timeseries(:test, datetimes, data, data.+1, data.-1)
+scatter(test_constr)
