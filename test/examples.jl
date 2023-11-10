@@ -17,10 +17,6 @@ Experiments.starttime(exp_multiple_dataframes.timeseries[38])
 Experiments.endtime(exp_multiple_dataframes.timeseries[38])
 Experiments.duration(exp_multiple_dataframes.timeseries[38])
 
-# The duration of the experiment is always the longest 
-# The duration of the timeseries can be all different
-
-
 ## Trying to implement the dataframes integration
 exp_multiple_dataframes
 ts1 = exp_multiple_dataframes.timeseries[3] # 20x1 DCW 
@@ -45,3 +41,5 @@ plot(df4.timestamp, df4.A_2)
 df = DataFrame(exp_multiple_dataframes)
 plot(df[!, :timestamp], df[!, :A_2])
 scatter(df.timestamp, df.A_10)
+
+Experiments.starttime()

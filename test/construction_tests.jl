@@ -12,4 +12,10 @@ exp_offline_dataframe, exp_online_dataframe, exp_multiple_dataframes = create_ex
 @test (length(exp_offline_dataframe.timeseries) + length(exp_online_dataframe.timeseries) 
     == length(exp_multiple_dataframes.timeseries))
 
-@test_broken (length(exp_offline_dataframe.timeseries) == 1) # just an example for a broken test, not important
+# This tests will check the correct construction of a DataFrame from an Experiment
+df = DataFrame(exp_multiple_dataframes)
+@test size(df, 2) == length(exp_multiple_dataframes.timeseries) + 1
+
+# TEST DRIVEN DEVELOPMENT - Broken Tests
+@test_broken (length(exp_offline_dataframe.timeseries) == 1) 
+# just an example for a broken test, not important
