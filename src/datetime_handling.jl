@@ -1,3 +1,5 @@
+hours2duration(time::Real) = Dates.Second(1.0) .* Int64.(round.(3600 .* time, digits=0))
+
 """
     starttime(timeseries::TimeArray)
 

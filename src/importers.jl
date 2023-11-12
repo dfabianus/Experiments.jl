@@ -13,6 +13,17 @@ function timeseries(experiment::Experiments.Experiment)
     return merge(experiment.timeseries..., method = :outer)
 end
 
+# Does not work yet
+# function timeseries(experiments::Vector{Experiments.Experiment})
+#     ts_vec = Vector{TimeArray}()
+#     for exp in experiments
+#         ts = timeseries(exp)
+#         #ts = merge(ts, TimeArray(timestamp(ts), [exp.id for i in 1:size(ts,1)], [:id]), method = :outer)
+#         push!(ts_vec, ts)
+#     end
+#     return merge(ts_vec..., method = :outer)
+# end
+
 function timeseries(experiment::Experiments.Experiment, names::Symbol...)
     ts_vec = Vector{TimeArray}()
     for ts in experiment.timeseries

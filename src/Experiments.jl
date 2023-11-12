@@ -23,6 +23,18 @@ function DataFrame(experiment::Experiment)
     return df_total
 end
 
+function DataFrame(experiments::Vector{Experiment})
+    dfs = Vector{DataFrame}()
+    for exp in experiments
+        df = DataFrame(exp)
+        df.id = [exp.id for i in 1:size(df,1)]
+        push!(dfs, df)
+    end
+    df_total = vcat(dfs...)
+    sort!(df_total, :timestamp) # must be done after join
+    return df_total
+end
+
 function save(experiment::Experiment, filename::String)
     df = DataFrame(experiment)
     CSV.write(filename, df)
