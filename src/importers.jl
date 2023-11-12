@@ -9,6 +9,10 @@ function timeseries(name::Symbol, datetimes::AbstractVector{<:TimeType}, values:
     return TimeArray(datetimes, hcat(values...), names, name)
 end
 
+function timeseries(ts::TimeArray, name::Symbol)
+    return TimeArray(timestamp(ts), values(ts), [name], name)
+end
+
 function timeseries(experiment::Experiments.Experiment)
     return merge(experiment.timeseries..., method = :outer)
 end

@@ -37,3 +37,16 @@ scatter(df_both.time, df_both.OD, group=df_both.id, xlabel="Time", ylabel="OD", 
 scatter(df_both.timestamp, df_both.OD, group=df_both.id, xlabel="Time", ylabel="OD", legend=:topleft, alpha = 0.8)
 scatter(df_both.time, df_both.q_S_meas_DCW, group=df_both.id, xlabel="Time", ylabel="q_S", legend=:topleft, alpha = 0.8)
 size(ts_both)
+
+# Calculate some differences using the calculator functionalities
+exp = Experiments.Experiment(df_offline, df_online; name="Fermentation 1")
+OD_diff = Experiments.diff(exp, :OD)
+OD_diff = Experiments.diff(exp, :OD, :DCW, :p_O2)
+Experiments.calc!(exp, Experiments.diff, :OD, :DCW, :p_O2)
+ts = Experiments.timeseries(exp, :p_O2_diff)
+plot(ts)
+
+# The same works for a vector of experiments
+experiments
+Experiments.calc!(experiments, Experiments.diff, :OD, :DCW, :p_O2)
+experiments
