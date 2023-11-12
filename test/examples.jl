@@ -64,3 +64,12 @@ datetimes = [DateTime(1,1,1,1,1,1), DateTime(1,1,1,1,1,2), DateTime(1,1,1,1,1,3)
 data = [1.0, 2.0, 3.0].±0.1
 test_constr = Experiments.timeseries(:test, datetimes, data, data.+1, data.-1)
 scatter(test_constr)
+
+exp_multiple_dataframes
+ts_all = Experiments.timeseries(exp_multiple_dataframes)
+df_all = DataFrame(exp_multiple_dataframes)
+scatter(df_all.timestamp, df_all.OD)
+scatter(ts_all.OD)
+colnames(ts_all)
+
+df_all[!,1] == timestamp(ts_all)

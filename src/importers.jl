@@ -8,3 +8,8 @@ function timeseries(name::Symbol, datetimes::AbstractVector{<:TimeType}, values:
     names = [name for i in 1:length(values)]
     return TimeArray(datetimes, hcat(values...), names)
 end
+
+function timeseries(experiment::Experiments.Experiment)
+    return merge(experiment.timeseries..., method = :outer)
+end
+
