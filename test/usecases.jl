@@ -50,3 +50,6 @@ plot(ts)
 experiments
 Experiments.calc!(experiments, Experiments.diff, :OD, :DCW, :p_O2)
 experiments
+
+# interpolation
+ts = Experiments.timeseries(exp, :OD)

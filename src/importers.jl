@@ -3,6 +3,10 @@ using DataFrames
 using TimeSeries
 using Dates
 
+function add_timeseries!(experiment::Experiment, timeseries::TimeArray)
+    push!(experiment.timeseries, timeseries)
+end
+
 # Wrappers around the TimeArray constructor
 function timeseries(name::Symbol, datetimes::AbstractVector{<:TimeType}, values::AbstractVector...)
     names = [name for i in 1:length(values)]

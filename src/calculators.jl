@@ -10,7 +10,7 @@ function calc!(experiment::Experiment, calculator::Function, args...; kwargs...)
         if name in colnames(Experiments.timeseries(experiment))
             println("Timeseries with the name $name already exists in the experiment.")
         else
-            push!(experiment.timeseries, ts)
+            add_timeseries!(experiment, ts)
         end
     end
 end 
