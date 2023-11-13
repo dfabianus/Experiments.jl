@@ -122,7 +122,7 @@ function diff_kalman(experiment::Experiment, names::Symbol...; xâ‚– = [0 0]', Pâ
     return ts_diff
 end
 
-function volume_flow(experiment::Experiment, massflow::Symbol; density::AbstractFloat=1000, name::Symbol=:volume_flow)
+function volume_flow(experiment::Experiment, massflow::Symbol ; density::Real=1000, name::Symbol=:volume_flow)
     ts_massflow = Experiments.timeseries(experiment, massflow)
     ts_volume_flow = -ts_massflow ./ density
     return [Experiments.timeseries(ts_volume_flow, name)]
