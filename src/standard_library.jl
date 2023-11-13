@@ -55,7 +55,7 @@ function Q_O2(experiment::Experiment, F_AIR::Symbol, F_O2::Symbol, x_O2::Symbol,
 end
 
 "Q_S(F_R;c_SR=400,M_S=30) = -F_R .* c_SR ./ M_S"
-function Q_S(experiment::Experiment, F_R::Symbol; c_SR::AbstractFloat=400, M_S::AbstractFloat=30, name::Symbol=:Q_S)
+function Q_S(experiment::Experiment, F_R::Symbol; c_SR::AbstractFloat=400.0, M_S::AbstractFloat=30.0, name::Symbol=:Q_S)
     ts_F_R = Experiments.timeseries(experiment, F_R)
     ts_Q_S = -ts_F_R .* c_SR ./ M_S
     return [Experiments.timeseries(ts_Q_S, name)]
@@ -126,4 +126,15 @@ function volume_flow(experiment::Experiment, massflow::Symbol ; density::Real=10
     ts_massflow = Experiments.timeseries(experiment, massflow)
     ts_volume_flow = -ts_massflow ./ density
     return [Experiments.timeseries(ts_volume_flow, name)]
+end
+
+function integral(experiment::Experiment, names::Symbol...)
+    ts_vec = [Experiments.timeseries(experiment, name) for name in names]
+    t_vec = timestamp2hours.(ts_vec)
+    tdiff = Base.diff.(t_vec)
+    z_vec = vec.(values.(ts_vec))
+    d_vec = [cumsum(z) for z in z_vec]
+    int_vec = [d[2:end] .* td for (d,td) in zip(d_vec, tdiff)]
+    ts_diff = [Experiments.timeseries(Symbol(name, :_integral), t[2:end], d) for (name,t,d) in zip(names,timestamp.(ts_vec),int_vec)]
+    return ts_diff
 end

@@ -75,3 +75,7 @@ plot!(Experiments.timeseries(exp, :m_R_diff_kalman), linewidth=3)
 Experiments.calc!(exp, Experiments.volume_flow, :m_R_diff_kalman) 
 Experiments.volume_flow(exp, :m_R_diff_kalman)
 plot(Experiments.timeseries(exp, :volume_flow))
+Experiments.calc!(exp, Experiments.integral, :m_R_diff_kalman) 
+
+plot(Experiments.timeseries(exp, :m_R_diff_kalman_integral))
+plot!(Experiments.timeseries(exp, :m_R))
