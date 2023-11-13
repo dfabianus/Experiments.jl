@@ -68,3 +68,8 @@ Experiments.calc!(exp, Experiments.x_OGin, :F_AIR, :F_O2; name = :x_OGin_newcalc
 xOGin = Experiments.x_OGin(exp, :F_AIR, :F_O2)
 Experiments.calc!(exp, Experiments.x_CGin, :F_AIR, :F_O2; name = :x_CGin_newcalc)
 Experiments.calc!(exp, Experiments.INERT, :x_OGin, :x_CGin, :x_O2, :x_CO2; name = :INERT)
+Experiments.calc!(exp, Experiments.diff_kalman, :m_L, :m_B, :m_R)
+Experiments.calc!(exp, Experiments.diff, :m_L, :m_B, :m_R)
+plot(Experiments.timeseries(exp, :m_R_diff) ./ diff(Experiments.timeseries(exp, :time).time_1))
+plot!(Experiments.timeseries(exp, :m_R_diff_kalman), linewidth=3)
+Experiments.calc!(exp, Experiments.volume_flow, :m_R_diff_kalman) 

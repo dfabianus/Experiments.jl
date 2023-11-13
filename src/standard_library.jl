@@ -68,3 +68,62 @@ function RQ(experiment::Experiment, Q_CO2::Symbol, Q_O2::Symbol; name::Symbol=:R
     ts_RQ = -ts_Q_O2 ./ ts_Q_CO2
     return [Experiments.timeseries(ts_RQ, name)]
 end
+
+function kalman(zₖ, xₖ = [0.0 0.0]', Pₖ = [10 0; 0 10]; Δt = 1.0, Q = [0 0; 0 0.01], R = 0.04)
+    A = [1.0 Δt; 0.0 1.0]
+    C = [1.0 0.0]
+    # State prediction
+    xₖ = A * xₖ
+    Pₖ = A * Pₖ * A' + Q
+    # Kalman Gain
+    K = Pₖ * C'* inv(C * Pₖ * C' .+ R)
+    # Output / estimate
+    x_hat = xₖ .+ K * (zₖ .- C * xₖ)
+    # Covariance error
+    P_hat = Pₖ .- K * C * Pₖ
+    return x_hat, P_hat
+end
+function kalman_vec(t, z, xₖ = [0 0]', Pₖ = [10 0; 0 10]; Q = [0 0; 0 0.01], R = 0.04) 
+    if length(z) < 2
+        return kalman(z, xₖ, Pₖ; Δt=t, Q=Q, R=R)
+    else
+        x = xₖ
+        P = vec(Pₖ)
+        Δt = Base.diff(t,dims=1)
+        for (Δtₖ,zₖ) in zip(Δt, z[2:end])
+            xₖ, Pₖ = kalman(zₖ, xₖ, Pₖ; Δt=Δtₖ, Q=Q, R=R)
+            x = [x xₖ]
+            P = [P vec(Pₖ)]
+        end
+        return x,P
+    end
+end
+function kalman_state_derivative(t, z, xₖ = [0 0]', Pₖ = [10 0; 0 10]; Q = [0 0; 0 0.01], R = 0.04) 
+    x,P = kalman_vec(t, z, xₖ, Pₖ; Q = Q, R = R) 
+    state = x[1,:]
+    derivative = x[2,:]
+    return state, derivative, x, P
+end
+function kalman_flow_rate(t, z, density = 1000, init_vol = 1.5, xₖ = [0 0]', Pₖ = [10 0; 0 10]; Q = [0 0; 0 0.01], R = 0.04) 
+    state, derivative, x, P = kalman_state_derivative(t, z, xₖ, Pₖ; Q = Q, R = R) 
+    return (
+        volume = state ./ density .+ init_vol, 
+        flow_rate = -derivative ./ density,
+        x = x,
+        P = P) 
+end
+
+function diff_kalman(experiment::Experiment, names::Symbol...; xₖ = [0 0]', Pₖ = [10 0; 0 10], Q = [0 0; 0 0.01], R = 0.04)
+    ts_vec = [Experiments.timeseries(experiment, name) for name in names]
+    t_vec = timestamp2hours.(ts_vec)
+    z_vec = vec.(values.(ts_vec))
+    d_vec = [kalman_state_derivative(t, z, xₖ, Pₖ; Q = Q, R = R)[2] for (t,z) in zip(t_vec, z_vec)]
+    ts_diff = [Experiments.timeseries(Symbol(name, :_diff_kalman), t, d) for (name,t,d) in zip(names,timestamp.(ts_vec),d_vec)]
+    return ts_diff
+end
+
+function volume_flow(experiment::Experiment, massflow::Symbol; density::AbstractFloat=1000, name::Symbol=:volume_flow)
+    ts_massflow = Experiments.timeseries(experiment, massflow)
+    ts_volume_flow = -ts_massflow ./ density
+    return [Experiments.timeseries(ts_volume_flow, name)]
+end
