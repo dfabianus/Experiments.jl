@@ -7,9 +7,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/hfqbg7qfmx0edwip?svg=true)](https://ci.appveyor.com/project/dfabianus/experiments-jl)
 [![Coverage](https://codecov.io/gh/dfabianus/Experiments.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/dfabianus/Experiments.jl)
 
-- [x] Die Grundstruktur abschließen: TimeSeries + Experiment struct
-- [x] include testing module
-- [x] implemented DataFrame integration
-- [ ] Möglichkeiten die Experimente als Collection zu vereinen
-- [ ] Parameter werden auch als TimeSeries mit zwei (oder einem?) Einträgen gespeichert, später einfacher damit zu rechnen, da sowieso interpoliert wird. Dazu kann die berechnete Start und End-Zeit genommen werden.
-- [ ] 
+-- Still in early development --
+
+When collecting time series experimental data, the frequency and completeness of the single measurements often differs a lot. Different measurements are usually not all taken at exactly the same time and in the same frequence making it complicated to handle them in one single DataFrame. Subsequent data analysis and calculation of additional variables then requires to handle the varying quality and quantity of the data through interpolation and other measures.
+
+This package builts on top of [TimeSeries.jl](https://github.com/JuliaStats/TimeSeries.jl) and [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl) .
