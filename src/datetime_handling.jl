@@ -95,3 +95,7 @@ end
 function timestamp2hours(timeseries::TimeArray)
     return (timestamp(timeseries) .- starttime(timeseries)) ./ Dates.Hour(1)
 end
+
+function timestamp2hours(datetimes::AbstractVector{<:TimeType})
+    return (datetimes .- minimum(datetimes)) ./ Dates.Hour(1)
+end
