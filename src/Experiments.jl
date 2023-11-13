@@ -12,6 +12,7 @@ include("types.jl")
 include("datetime_handling.jl")
 include("importers.jl")
 include("calculators.jl")
+include("standard_library.jl")
 
 Base.show(io::IO, z::Experiment) = print(io, z.id, " experiment with ", length(z.timeseries), " timeseries")
 

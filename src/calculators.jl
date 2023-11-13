@@ -20,11 +20,3 @@ function calc!(experiments::Vector{Experiment}, calculator::Function, args...; k
         calc!(exp, calculator, args...; kwargs...)
     end
 end
-
-# Some standard calculators
-function diff(experiment::Experiment, names::Symbol...)
-    ts_vec = [Experiments.timeseries(experiment, name) for name in names]
-    ts_diff = [Experiments.timeseries(TimeSeries.diff(ts), Symbol(name, :_diff)) for (name,ts) in zip(names,ts_vec)]
-    return ts_diff
-end
-

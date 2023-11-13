@@ -62,3 +62,9 @@ meta(OD_2)
 plot(values(pO2),values(OD_2))
 plot!(pO2)
 
+# calculator std library
+colnames(Experiments.timeseries(exp))
+Experiments.calc!(exp, Experiments.x_OGin, :F_AIR, :F_O2; name = :x_OGin_newcalc)
+xOGin = Experiments.x_OGin(exp, :F_AIR, :F_O2)
+Experiments.calc!(exp, Experiments.x_CGin, :F_AIR, :F_O2; name = :x_CGin_newcalc)
+Experiments.calc!(exp, Experiments.INERT, :x_OGin, :x_CGin, :x_O2, :x_CO2; name = :INERT)
