@@ -79,3 +79,9 @@ Experiments.calc!(exp, Experiments.integral, :m_R_diff_kalman)
 
 plot(Experiments.timeseries(exp, :m_R_diff_kalman_integral))
 plot!(Experiments.timeseries(exp, :m_R))
+
+Experiments.calc!(exp, Experiments.calc_K2S1, :Q_S, :Q_CO2, :Q_O2, :V_L; x0 = [0.45,30.0,0.0,0.0]) 
+plot(Experiments.timeseries(exp, :K2S1_mX))
+plot!(Experiments.timeseries(exp, :K2S1_mS))
+scatter!(Experiments.timeseries(exp, :c_S) .* Experiments.timeseries(exp, :V_L))
+scatter!(Experiments.timeseries(exp, :DCW) .* Experiments.timeseries(exp, :V_L))

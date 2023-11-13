@@ -138,3 +138,107 @@ function integral(experiment::Experiment, names::Symbol...)
     ts_diff = [Experiments.timeseries(Symbol(name, :_integral), t[2:end], d) for (name,t,d) in zip(names,timestamp.(ts_vec),int_vec)]
     return ts_diff
 end
+
+function K2S1(r, E, i_known, i_unknown)
+    # Q is a vector of the supply rates and exhaust rates measured at the bioreactor
+    # Units are mol/h
+    sigma = Matrix{Float64}(LinearAlgebra.I, length(i_known), length(i_known))
+    rm = r[i_known]
+    Em = E[:,i_known]
+    Ec = E[:,i_unknown]
+    #Ec_star: Moore Penrose pseudo inverse of Ec
+    Ec_star=(inv(Ec'*Ec))*Ec'
+    # R: Redundancy matrix
+    R=Em-Ec*Ec_star*Em
+    # Rred: Reduced redundancy matrix (containing just the independent rows of R
+    U,S,V=svd(R)
+    Sconv=[1 0]
+    C=Sconv*S
+    K=C*S'*U'
+    Rred=K*R
+    # eps: residual vector
+    eps = Rred * rm
+    # P: Residual variance covariance matrix
+    P = Rred * sigma *Rred'
+    # Reconciliation of measured and calculated rates
+    delta = (sigma*Rred'*inv(P) * Rred)* rm
+    rm_best = rm-delta
+    xc_best = -Ec_star*Em*rm_best
+    # Sum of weighted squares of residuals
+    h = eps' * inv(P) * eps
+    # Calculate the function outputs
+    return (r=vcat(xc_best, rm_best), h=h)
+end
+
+function K2S1m(x,p,t)
+    i_known = [2,3,4]
+    i_unknown = [1]
+    M = [26.5, 30, 44, 32]
+    E = [1 1 1 0;
+         4.113 4 0 -4]
+    c_S = x[2] ./ p.V_L(t)
+    qS = p.qSmax(t) * c_S / (p.kS(t) + c_S)
+    rS = -qS * x[1]
+    # constructing Q and r in mol/h and g/h
+    Q_mol = vcat(zeros(length(i_unknown)), [Q(t) for Q in p.Q_known])
+    Q_g = Q_mol .* M
+    r_g = vcat(zeros(length(i_unknown)), rS, Q_g[3:4])
+    r_mol = r_g ./ M
+    r_hat_mol, h = K2S1(r_mol, E, i_known, i_unknown)
+    r_hat_g = r_hat_mol .* M
+    # if x[1] < 7
+    #     #r_hat[1] = -0.37 * r_hat[2]
+    #     r_hat[1] = -0.45 * r_hat[2]
+    # end
+    
+    #dx[:] = [Qᵢ+rᵢ for (Qᵢ,rᵢ) in zip(Q_g,r_hat_g)]
+    return Q_g .+ r_hat_g, r_hat_g, h
+end
+
+function K2S1m_call!(dx,x,p,t)
+    dx[:], _, _ = K2S1m(x,p,t)
+end
+
+function datafun(t,tx,x)
+    x_int = Interpolations.linear_interpolation(tx, x, extrapolation_bc=Line())
+    return x_int(t)
+end
+
+function calc_K2S1(tx, Q_S, Q_CO2, Q_O2, V_L, x0; tInd=24, qSmax_0=1.25, qSmax_1=0.24, kS_0=0.1)
+    Q_known = [(t) -> datafun(t, tx, Q) for Q in [Q_S, Q_CO2, Q_O2]]
+    V_Lf(t) = datafun(t, tx, V_L)
+    tspan = (tx[1], tx[end])
+    p = (Q_known = Q_known,
+        V_L = V_Lf,
+        qSmax = (t) -> t <= tInd ? qSmax_0 : qSmax_1,
+        kS = (t) -> kS_0
+        )
+    prob = ODEProblem(K2S1m_call!,x0,tspan,p)
+    sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8)
+    return sol
+end
+
+function calc_K2S1(experiment::Experiment, Q_S::Symbol, Q_CO2::Symbol, Q_O2::Symbol, V_L::Symbol; x0, tInd=24, qSmax_0=1.25, qSmax_1=0.24, kS_0=0.1)
+    Q_S_ts = Experiments.timeseries(experiment, Q_S)
+    Q_CO2_ts = Experiments.timeseries(experiment, Q_CO2)
+    Q_O2_ts = Experiments.timeseries(experiment, Q_O2)
+    V_L_ts = Experiments.timeseries(experiment, V_L)
+    Q_vv = [vec(values(Q_S_ts)), vec(values(Q_CO2_ts)), vec(values(Q_O2_ts))]
+    tx = timestamp2hours(Q_S_ts)
+    Q_known = [(t) -> datafun(t, tx, Q) for Q in Q_vv]
+    V_Lf(t) = datafun(t, tx, vec(values(V_L_ts)))
+    tspan = (tx[1], tx[end])
+    p = (Q_known = Q_known,
+        V_L = V_Lf,
+        qSmax = (t) -> t <= tInd ? qSmax_0 : qSmax_1,
+        kS = (t) -> kS_0
+        )
+    prob = ODEProblem(K2S1m_call!,x0,tspan,p)
+    sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8)
+    df = DataFrame(sol)
+    ts_X = Experiments.timeseries(:K2S1_mX, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value1)
+    ts_S = Experiments.timeseries(:K2S1_mS, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value2)
+    ts_CO2 = Experiments.timeseries(:K2S1_mCO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value3)
+    ts_O2 = Experiments.timeseries(:K2S1_mO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value4)
+    return [ts_X, ts_S, ts_CO2, ts_O2]
+end

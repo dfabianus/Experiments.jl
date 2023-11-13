@@ -7,6 +7,8 @@ using Dates
 using DataFrames
 using CSV
 using Interpolations
+using OrdinaryDiffEq
+using LinearAlgebra
 
 include("types.jl")
 include("datetime_handling.jl")
