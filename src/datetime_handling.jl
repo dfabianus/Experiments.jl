@@ -91,3 +91,7 @@ julia> duration(experiment)
 function duration(experiment::Experiment)
     return Dates.canonicalize(endtime(experiment) - starttime(experiment))
 end
+
+function timestamp2hours(timeseries::TimeArray)
+    return (timestamp(timeseries) .- starttime(timeseries)) ./ Dates.Hour(1)
+end

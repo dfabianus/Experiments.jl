@@ -6,6 +6,7 @@ using TimeSeries
 using Dates
 using DataFrames
 using CSV
+using Interpolations
 
 include("types.jl")
 include("datetime_handling.jl")

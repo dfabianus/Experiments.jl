@@ -5,6 +5,7 @@ using Plots
 using Dates
 using CSV 
 using DataFrames
+using Interpolations
 
 # First, creating some measurements from fermentations
 df_offline = CSV.read("data/offline.csv", DataFrame)
@@ -53,3 +54,11 @@ experiments
 
 # interpolation
 ts = Experiments.timeseries(exp, :OD)
+lin = linear_interpolation(Experiments.timestamp2hours(ts), vec(values(ts)), extrapolation_bc=Line())
+plot([0:0.1:37], lin.([0:0.1:37]), label="interpolated")
+scatter!(Experiments.timestamp2hours(ts), vec(values(ts)), label="original")
+OD_2 = Experiments.interpolate(ts, pO2)
+meta(OD_2)
+plot(values(pO2),values(OD_2))
+plot!(pO2)
+

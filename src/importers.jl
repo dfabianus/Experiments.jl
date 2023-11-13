@@ -47,3 +47,8 @@ function timeseries(experiment::Experiments.Experiment, names::Symbol...)
     end
     return merge(ts_vec..., method = :outer)
 end
+
+function interpolate(from_ts::TimeArray, to_ts::TimeArray)
+    lin = linear_interpolation(Experiments.timestamp2hours(from_ts), vec(values(from_ts)), extrapolation_bc=Line())
+    return timeseries(Symbol(meta(from_ts), :_interp), timestamp(to_ts), lin.(Experiments.timestamp2hours(to_ts)))
+end
