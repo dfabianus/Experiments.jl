@@ -24,16 +24,39 @@ This package builts on top of [TimeSeries.jl](https://github.com/JuliaStats/Time
 using Experiments
 using Dates
 
-# Define the first example timeseries
+# Define the first example timeseries with frequency of 0.1 hours (151 points).
 t1 = DateTime(2018,1,1,0,0,0) .+ Experiments.hours2duration.(0:0.1:15)
 v1 = sin.(0:0.1:15)
 ts1 = timeseries(:measurement1, t1, v1)
 # 151×1 TimeSeries.TimeArray{Float64, 2, DateTime, Matrix{Float64}} 2018-01-01T00:00:00 to 2018-01-01T15:00:00
 
-# Define a second example timeseries
+# Define a second example timeseries with frequency of 0.25 hours (61 points).
 t2 = DateTime(2018,1,1,1,0,0) .+ Experiments.hours2duration.(0:0.25:15)
 v2 = cos.(0:0.25:15)
 ts2 = timeseries(:measurement2, t2, v2)
 # 61×1 TimeSeries.TimeArray{Float64, 2, DateTime, Matrix{Float64}} 2018-01-01T01:00:00 to 2018-01-01T16:00:00
 ```
-We created two isntances of type `TimeArray` from `TimeSeries.jl` by using the `timeseries` function.
+We created two instances of type `TimeArray` from `TimeSeries.jl` by using the `timeseries` function.
+```julia
+using Plots
+scatter(ts1)
+scatter!(ts2)
+```
+yields the following plot
+
+![timeseries_1_and_2](docs/assets/quickstart_1.svg)
+
+It can be noticed, that the signals are 1 hour shifted and the sampling frequency differs.
+
+```julia
+# Create an experiment with both timeseries
+exp1 = Experiment("Experiment1", ts1, ts2) #Experiment1 experiment with 2 timeseries
+
+# Use the timeseries command to get a TimeArray containing a specific measurement.
+timeseries(exp1, :measurement1) # 151×1 TimeSeries.TimeArray{Float64, 2, DateTime, Matrix{Float64}} 2018-01-01T00:00:00 to 2018-01-01T15:00:00
+timeseries(exp1, :measurement2) # 61×1 TimeSeries.TimeArray{Float64, 2, DateTime, Matrix{Float64}} 2018-01-01T01:00:00 to 2018-01-01T16:00:00
+
+# Use the timeseries command to get a TimeArray containing both measurements.
+timeseries(exp1) # 183×2 TimeSeries.TimeArray{Float64, 2, DateTime, Matrix{Float64}} 2018-01-01T00:00:00 to 2018-01-01T16:00:00
+# Values are NaN, when there is no value available for the measurement at that timepoint.
+```
