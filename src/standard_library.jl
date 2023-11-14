@@ -122,6 +122,15 @@ function diff_kalman(experiment::Experiment, names::Symbol...; xₖ = [0 0]', P�
     return ts_diff
 end
 
+function smooth_kalman(experiment::Experiment, names::Symbol...; xₖ = [0 0]', Pₖ = [10 0; 0 10], Q = [0 0; 0 0.01], R = 0.04)
+    ts_vec = [Experiments.timeseries(experiment, name) for name in names]
+    t_vec = timestamp2hours.(ts_vec)
+    z_vec = vec.(values.(ts_vec))
+    d_vec = [kalman_state_derivative(t, z, xₖ, Pₖ; Q = Q, R = R)[1] for (t,z) in zip(t_vec, z_vec)]
+    ts_smooth = [Experiments.timeseries(Symbol(name, :_smooth_kalman), t, d) for (name,t,d) in zip(names,timestamp.(ts_vec),d_vec)]
+    return ts_smooth
+end
+
 function volume_flow(experiment::Experiment, massflow::Symbol ; density::Real=1000, name::Symbol=:volume_flow)
     ts_massflow = Experiments.timeseries(experiment, massflow)
     ts_volume_flow = -ts_massflow ./ density
@@ -241,4 +250,10 @@ function calc_K2S1(experiment::Experiment, Q_S::Symbol, Q_CO2::Symbol, Q_O2::Sym
     ts_CO2 = Experiments.timeseries(:K2S1_mCO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value3)
     ts_O2 = Experiments.timeseries(:K2S1_mO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value4)
     return [ts_X, ts_S, ts_CO2, ts_O2]
+end
+
+function volume(experiment::Experiment, mass::Symbol; initial_vol, density::Real=1000, name::Symbol=:volume)
+    ts_mass = Experiments.timeseries(experiment, mass)
+    ts_volume = ts_mass ./ density .+ initial_vol
+    return [Experiments.timeseries(ts_volume, name)]
 end

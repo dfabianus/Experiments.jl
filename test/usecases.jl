@@ -85,3 +85,11 @@ plot(Experiments.timeseries(exp, :K2S1_mX))
 plot!(Experiments.timeseries(exp, :K2S1_mS))
 scatter!(Experiments.timeseries(exp, :c_S) .* Experiments.timeseries(exp, :V_L))
 scatter!(Experiments.timeseries(exp, :DCW) .* Experiments.timeseries(exp, :V_L))
+
+Experiments.calc!(exp, Experiments.volume, :m_L; initial_vol = 1.5, name = :V_L_new)
+plot(Experiments.timeseries(exp, :V_L_new))
+plot!(Experiments.timeseries(exp, :V_L))
+
+Experiments.calc!(exp, Experiments.smooth_kalman, :m_L)
+plot(Experiments.timeseries(exp, :m_L_smooth_kalman))
+plot!(Experiments.timeseries(exp, :m_L))
