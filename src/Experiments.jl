@@ -1,6 +1,6 @@
 module Experiments
 
-export Experiment, TimeVariable
+export Experiment, TimeVariable, timeseries
 
 using TimeSeries
 using Dates
