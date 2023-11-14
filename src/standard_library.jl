@@ -245,10 +245,10 @@ function calc_K2S1(experiment::Experiment, Q_S::Symbol, Q_CO2::Symbol, Q_O2::Sym
     prob = ODEProblem(K2S1m_call!,x0,tspan,p)
     sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8)
     df = DataFrame(sol)
-    ts_X = Experiments.timeseries(:K2S1_mX, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value1)
-    ts_S = Experiments.timeseries(:K2S1_mS, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value2)
-    ts_CO2 = Experiments.timeseries(:K2S1_mCO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value3)
-    ts_O2 = Experiments.timeseries(:K2S1_mO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value4)
+    ts_X = Experiments.timeseries(:K2S1_cX, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value1 ./ V_Lf.(df.timestamp))
+    ts_S = Experiments.timeseries(:K2S1_cS, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value2 ./ V_Lf.(df.timestamp))
+    ts_CO2 = Experiments.timeseries(:K2S1_cCO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value3 ./ V_Lf.(df.timestamp))
+    ts_O2 = Experiments.timeseries(:K2S1_cO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value4 ./ V_Lf.(df.timestamp))
     return [ts_X, ts_S, ts_CO2, ts_O2]
 end
 
