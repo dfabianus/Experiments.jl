@@ -201,11 +201,16 @@ function K2S1m(x,p,t)
     # end
     
     #dx[:] = [Qᵢ+rᵢ for (Qᵢ,rᵢ) in zip(Q_g,r_hat_g)]
-    return Q_g .+ r_hat_g, r_hat_g, h
+    return Q_g .+ r_hat_g, r_hat_g, r_hat_mol, h
 end
 
 function K2S1m_call!(dx,x,p,t)
-    dx[:], _, _ = K2S1m(x,p,t)
+    dx[:], _, _, _ = K2S1m(x,p,t)
+end
+
+function K2S1m_rates(x,p,t)
+    _, r_hat_g, r_hat_mol, h = K2S1m(x,p,t)
+    return r_hat_g, r_hat_mol, h
 end
 
 function datafun(t,tx,x)
@@ -244,11 +249,14 @@ function calc_K2S1(experiment::Experiment, Q_S::Symbol, Q_CO2::Symbol, Q_O2::Sym
         )
     prob = ODEProblem(K2S1m_call!,x0,tspan,p)
     sol = solve(prob, Tsit5(), reltol=1e-8, abstol=1e-8)
+    
     df = DataFrame(sol)
+    rates = [K2S1m_rates(x,p,t) for (x,t) in zip(eachcol(sol.u), df.timestamp)]
     ts_X = Experiments.timeseries(:K2S1_cX, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value1 ./ V_Lf.(df.timestamp))
     ts_S = Experiments.timeseries(:K2S1_cS, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value2 ./ V_Lf.(df.timestamp))
     ts_CO2 = Experiments.timeseries(:K2S1_cCO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value3 ./ V_Lf.(df.timestamp))
     ts_O2 = Experiments.timeseries(:K2S1_cO2, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), df.value4 ./ V_Lf.(df.timestamp))
+    ts_rates = Experiments.timeseries(:K2S1_rates, Experiments.starttime(Q_S_ts) .+ Experiments.hours2duration.(df.timestamp), rates)
     return [ts_X, ts_S, ts_CO2, ts_O2]
 end
 
